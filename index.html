@@ -10,7 +10,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root{ --primary:#2563eb; --bg:#0f172a; --glass:rgba(30, 41, 59, 0.7); --glass-border:rgba(96, 165, 250, 0.3); --text:#ffffff; }
         
-        /* SPLASH SCREEN */
         #splashScreen{ position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center; flex-direction:column; background:radial-gradient(circle at top,#2563eb 0%,transparent 40%), radial-gradient(circle at bottom,#7c3aed 0%,transparent 40%), #0f172a; overflow:hidden; }
         #splashScreen::before{ content:""; position:absolute; width:300px; height:300px; background:#2563eb; filter:blur(120px); opacity:.3; animation: pulse 4s infinite; }
         .logo-splash{ width:140px; height:140px; border-radius:35px; background:linear-gradient(135deg,#2563eb,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:65px; color:white; box-shadow:0 20px 60px rgba(37,99,235,.5); animation: floatLogo 3s ease-in-out infinite; }
@@ -25,7 +24,6 @@
         .fade-out{ animation: fadeOut .8s forwards; }
         @keyframes fadeOut{ to{ opacity:0; visibility:hidden; } }
 
-        /* ESTILOS DO SISTEMA */
         *{ margin:0; padding:0; box-sizing:border-box; }
         body{ font-family:'Inter',sans-serif; min-height:100vh; display:flex; background:linear-gradient(135deg,#0f172a,#1e293b); color:var(--text); overflow:auto; }
         .sidebar{ width:280px; padding:25px; backdrop-filter:blur(20px); background:rgba(15,23,42,.85); border-right:1px solid var(--glass-border); display:flex; flex-direction:column; position:relative; z-index:10; }
@@ -82,7 +80,7 @@
                 <p><i class="fas fa-layer-group"></i> Total de Matérias: <span id="totalMaterias">0</span></p>
                 <p><i class="fas fa-trophy" style="color: gold;"></i> Total de Acertos: <span id="totalAcertos">0</span></p>
                 <p><i class="fas fa-times-circle" style="color: #ef4444;"></i> Total de Erros: <span id="totalErros">0</span></p>
-                <button class="btn" style="background: #ef4444; margin-top: 15px;" onclick="confirmarAcao('Zerar?', 'Deseja apagar estatísticas?', resetarSistema)"><i class="fas fa-trash"></i> Zerar Estatísticas</button>
+                <button class="btn" style="background: #ef4444; margin-top: 15px;" onclick="confirmarAcao('Zerar?', 'Deseja apagar estatísticas?', 'resetarEstatisticas()')"><i class="fas fa-trash"></i> Zerar Estatísticas</button>
             </div>
         </div>
 
@@ -110,7 +108,7 @@
             <h2>Praticar</h2>
             <div id="menuMaterias"></div>
             <div id="areaQuestao" class="hidden">
-                <button class="btn" onclick="location.reload()"><i class="fas fa-arrow-left"></i> Voltar</button>
+                <button class="btn" onclick="openScreen('questoes')"><i class="fas fa-arrow-left"></i> Voltar</button>
                 <div id="conteudoQuestao"></div>
             </div>
         </div>
@@ -136,7 +134,6 @@
             document.getElementById('op5').value = "";
             document.getElementById('corretaSelect').value = "0";
             document.getElementById('formAdd').classList.remove('hidden');
-            document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function editarQuestao(index){
@@ -152,7 +149,6 @@
             document.getElementById('op5').value = q.opcoes[4];
             document.getElementById('corretaSelect').value = q.correta;
             document.getElementById('formAdd').classList.remove('hidden');
-            document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function salvarQuestao(){
@@ -164,52 +160,72 @@
             location.reload();
         }
 
-        // --- Funções de Apoio (Mantidas) ---
-        function confirmarAcao(titulo, msg, callback) {
+        function confirmarAcao(titulo, msg, acao) {
             document.getElementById('modalTitle').innerText = titulo;
             document.getElementById('modalMsg').innerText = msg;
-            const btns = document.getElementById('modalBtns');
-            btns.innerHTML = `<button class="modal-btn" style="background:#ef4444; color:white;" onclick="fecharModal()">Não</button>
-                              <button class="modal-btn" style="background:#22c55e; color:white;" onclick="executarCallback(${callback.name})">Sim</button>`;
+            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444; color:white;" onclick="fecharModal()">Não</button>
+                                                              <button class="modal-btn" style="background:#22c55e; color:white;" onclick="${acao}; fecharModal();">Sim</button>`;
             document.getElementById('customModal').style.display = 'flex';
         }
-        function executarCallback(fn) { fn(); fecharModal(); }
         function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
-        function resetarSistema() { localStorage.removeItem('acertos'); localStorage.removeItem('erros'); location.reload(); }
+        
+        function resetarEstatisticas() { 
+            localStorage.removeItem('acertos'); 
+            localStorage.removeItem('erros'); 
+            atualizarContadores();
+        }
+
         function openScreen(id){
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'questoes') carregarMenuMaterias();
             if(id === 'disciplinas') listarDisciplinasUnicas();
         }
+
         function listarDisciplinasUnicas(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const lista = document.getElementById('listaDisciplinas');
             lista.innerHTML = '';
-            const agrupado = {};
-            banco.forEach((q, idx) => { if(!agrupado[q.materia]) agrupado[q.materia] = []; agrupado[q.materia].push({conteudo: q.enunciado, index: idx}); });
-            Object.keys(agrupado).forEach(materia => {
-                let html = `<div class="card"><strong>${materia}</strong><br><br>`;
-                agrupado[materia].forEach(q => { html += `<div style="padding-bottom:10px; border-bottom:1px solid #475569; margin-bottom:10px;"><button class="btn-edit" onclick="editarQuestao(${q.index})">Editar</button><button class="btn-del" onclick="deletarQuestao(${q.index})">Apagar</button></div>`; });
-                html += `</div>`;
+            const materias = [...new Set(banco.map(q => q.materia))];
+            materias.forEach(materia => {
+                let html = `<button class="btn" onclick="exibirQuestoesDaMateria('${materia}')">${materia}</button>`;
                 lista.innerHTML += html;
             });
         }
-        function deletarQuestao(index) {
-            confirmarAcao('Excluir?', 'Tem certeza que deseja apagar esta questão?', () => {
-                let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-                banco.splice(index, 1);
-                localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-                location.reload();
+
+        function exibirQuestoesDaMateria(materia) {
+            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            const lista = document.getElementById('listaDisciplinas');
+            lista.innerHTML = `<button class="btn" onclick="listarDisciplinasUnicas()"><i class="fas fa-arrow-left"></i> Voltar</button><h3>${materia}</h3>`;
+            banco.forEach((q, idx) => {
+                if(q.materia === materia) {
+                    lista.innerHTML += `<div class="card"><p><strong>${q.enunciado}</strong></p>
+                    <button class="btn-edit" onclick="editarQuestao(${idx})">Editar</button>
+                    <button class="btn-del" onclick="deletarQuestao(${idx})">Apagar</button></div>`;
+                }
             });
         }
+
+        function deletarQuestao(index) {
+            confirmarAcao('Excluir?', 'Tem certeza que deseja apagar?', `executarDelecao(${index})`);
+        }
+        function executarDelecao(index) {
+            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            banco.splice(index, 1);
+            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            location.reload();
+        }
+
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const materiasUnicas = [...new Set(banco.map(q => q.materia))];
             const menu = document.getElementById('menuMaterias');
+            menu.classList.remove('hidden');
+            document.getElementById('areaQuestao').classList.add('hidden');
             menu.innerHTML = '';
             materiasUnicas.forEach(m => menu.innerHTML += `<button class="btn" onclick="mostrarQuestoes('${m}')">${m}</button>`);
         }
+
         function mostrarQuestoes(materia) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const questoes = banco.filter(q => q.materia === materia);
@@ -221,12 +237,20 @@
             });
             document.getElementById('areaQuestao').classList.remove('hidden');
         }
+
         function verificar(escolhida, correta, feedId){
             const element = document.getElementById(feedId);
-            if(escolhida == correta) { localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); element.innerHTML = `<div class="feedback-box" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;"><i class="fas fa-check-circle"></i> Correto!</div>`; }
-            else { localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); element.innerHTML = `<div class="feedback-box" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171;"><i class="fas fa-times-circle"></i> Errado!</div>`; }
+            if(escolhida == correta) { 
+                localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); 
+                element.innerHTML = `<div class="feedback-box" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;"><i class="fas fa-check-circle"></i> Correto!</div>`; 
+            }
+            else { 
+                localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); 
+                element.innerHTML = `<div class="feedback-box" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171;"><i class="fas fa-times-circle"></i> Errado!</div>`; 
+            }
             atualizarContadores();
         }
+
         function atualizarContadores(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
