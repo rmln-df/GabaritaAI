@@ -137,13 +137,21 @@
                 let data = snapshot.val();
                 const banco = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
                 localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-                atualizarContadores();
-                if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
+                renderizarTudo();
             });
             setTimeout(() => { document.getElementById("splashScreen").classList.add("fade-out"); }, 3000);
         });
 
+        // Esta função centraliza todas as atualizações de tela
+        function renderizarTudo() {
+            atualizarContadores();
+            if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
+            // Se o usuário estiver na tela de questões, não resetamos o progresso automaticamente, 
+            // a menos que ele saia e entre novamente, para não interromper o treino.
+        }
+
         function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
+        
         function atualizarContadores(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
@@ -186,11 +194,8 @@
             };
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
             syncFirebase(banco);
             document.getElementById('formAdd').classList.add('hidden');
-            atualizarContadores();
-            listarDisciplinasUnicas();
         }
 
         function confirmarAcao(titulo, msg, acao) {
@@ -236,13 +241,8 @@
         function executarDelecao(index) {
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             banco.splice(index, 1);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
             syncFirebase(banco);
-            atualizarContadores();
-            listarDisciplinasUnicas();
         }
-
-        // --- Nova Lógica de Prática ---
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
