@@ -130,16 +130,13 @@
     </div>
 
     <script>
-        // --- Sincronização Firebase ---
-        function syncFirebase(banco) {
-            db.ref('bancoEstudos').set(banco);
-        }
-
         window.addEventListener("load", () => {
-            // Carrega dados da nuvem ao iniciar
-            db.ref('bancoEstudos').once('value').then(snapshot => {
-                if(snapshot.exists()) localStorage.setItem('bancoEstudos', JSON.stringify(snapshot.val()));
+            db.ref('bancoEstudos').on('value', (snapshot) => {
+                let data = snapshot.val();
+                const banco = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+                localStorage.setItem('bancoEstudos', JSON.stringify(banco));
                 atualizarContadores();
+                if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
             });
 
             setTimeout(() => {
@@ -148,22 +145,26 @@
                 setTimeout(() => { splash.remove(); }, 800);
             }, 3000);
         });
-        // ------------------------------
+
+        function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
+        function atualizarContadores(){
+            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
+            document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
+            document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
+        }
 
         function resetForm() {
             document.getElementById('editIndex').value = "-1";
             document.getElementById('materiaInput').value = "";
             document.getElementById('enunciadoInput').value = "";
-            document.getElementById('op1').value = "";
-            document.getElementById('op2').value = "";
-            document.getElementById('op3').value = "";
-            document.getElementById('op4').value = "";
+            document.getElementById('op1').value = ""; document.getElementById('op2').value = "";
+            document.getElementById('op3').value = ""; document.getElementById('op4').value = "";
             document.getElementById('op5').value = "";
-            document.getElementById('corretaSelect').value = "0";
             document.getElementById('formAdd').classList.remove('hidden');
         }
 
-        function editarQuestao(index){
+        function editarQuestao(index) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const q = banco[index];
             document.getElementById('editIndex').value = index;
@@ -180,12 +181,28 @@
 
         function salvarQuestao(){
             const index = parseInt(document.getElementById('editIndex').value);
-            const nova = { materia: document.getElementById('materiaInput').value, enunciado: document.getElementById('enunciadoInput').value, opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], correta: document.getElementById('corretaSelect').value };
+            const nova = { 
+                materia: document.getElementById('materiaInput').value, 
+                enunciado: document.getElementById('enunciadoInput').value, 
+                opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], 
+                correta: document.getElementById('corretaSelect').value 
+            };
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
             localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-            syncFirebase(banco); // Sincroniza na nuvem
-            location.reload();
+            syncFirebase(banco);
+            document.getElementById('formAdd').classList.add('hidden');
+            atualizarContadores();
+            listarDisciplinasUnicas();
+        }
+
+        function executarDelecao(index) {
+            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            banco.splice(index, 1);
+            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco);
+            atualizarContadores();
+            listarDisciplinasUnicas();
         }
 
         function confirmarAcao(titulo, msg, acao) {
@@ -196,12 +213,7 @@
             document.getElementById('customModal').style.display = 'flex';
         }
         function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
-        
-        function resetarEstatisticas() { 
-            localStorage.removeItem('acertos'); 
-            localStorage.removeItem('erros'); 
-            atualizarContadores();
-        }
+        function resetarEstatisticas() { localStorage.removeItem('acertos'); localStorage.removeItem('erros'); atualizarContadores(); }
 
         function openScreen(id){
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -214,10 +226,8 @@
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const lista = document.getElementById('listaDisciplinas');
             lista.innerHTML = '';
-            const materias = [...new Set(banco.map(q => q.materia))];
-            materias.forEach(materia => {
-                let html = `<button class="btn" onclick="exibirQuestoesDaMateria('${materia}')">${materia}</button>`;
-                lista.innerHTML += html;
+            [...new Set(banco.map(q => q.materia))].forEach(materia => {
+                lista.innerHTML += `<button class="btn" onclick="exibirQuestoesDaMateria('${materia}')">${materia}</button>`;
             });
         }
 
@@ -234,34 +244,22 @@
             });
         }
 
-        function deletarQuestao(index) {
-            confirmarAcao('Excluir?', 'Tem certeza que deseja apagar?', `executarDelecao(${index})`);
-        }
-        function executarDelecao(index) {
-            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            banco.splice(index, 1);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-            syncFirebase(banco); // Sincroniza exclusão na nuvem
-            location.reload();
-        }
+        function deletarQuestao(index) { confirmarAcao('Excluir?', 'Tem certeza?', `executarDelecao(${index})`); }
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            const materiasUnicas = [...new Set(banco.map(q => q.materia))];
             const menu = document.getElementById('menuMaterias');
             menu.classList.remove('hidden');
             document.getElementById('areaQuestao').classList.add('hidden');
             menu.innerHTML = '';
-            materiasUnicas.forEach(m => menu.innerHTML += `<button class="btn" onclick="mostrarQuestoes('${m}')">${m}</button>`);
+            [...new Set(banco.map(q => q.materia))].forEach(m => menu.innerHTML += `<button class="btn" onclick="mostrarQuestoes('${m}')">${m}</button>`);
         }
 
         function mostrarQuestoes(materia) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            const questoes = banco.filter(q => q.materia === materia);
-            document.getElementById('menuMaterias').classList.add('hidden');
             const container = document.getElementById('conteudoQuestao');
             container.innerHTML = `<h3>${materia}</h3>`;
-            questoes.forEach((q, idx) => {
+            banco.filter(q => q.materia === materia).forEach((q, idx) => {
                 container.innerHTML += `<div class="card" id="q-${idx}"><p><strong>${q.enunciado}</strong></p>
                 ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta}, 'q-${idx}')">${op}</button>`).join('')}</div>`;
             });
@@ -272,26 +270,10 @@
             const container = document.getElementById(containerId);
             const botoes = container.querySelectorAll('.opt-btn');
             botoes.forEach(b => b.style.pointerEvents = 'none');
-            
-            if(escolhida == correta) { 
-                localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); 
-                btn.style.background = "#22c55e"; 
-            } else { 
-                localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); 
-                btn.style.background = "#ef4444"; 
-                botoes[correta].style.border = "3px solid #22c55e";
-            }
+            if(escolhida == correta) { localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); btn.style.background = "#22c55e"; }
+            else { localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); btn.style.background = "#ef4444"; botoes[correta].style.border = "3px solid #22c55e"; }
             atualizarContadores();
         }
-
-        function atualizarContadores(){
-            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
-            document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
-            document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
-        }
-        atualizarContadores();
     </script>
 </body>
 </html>
-
