@@ -6,6 +6,22 @@
     <title>Gabarita AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFZTtSWZntDvpdsrv-A0eU9GBIbMVSVhM",
+            authDomain: "studyforge-61a08.firebaseapp.com",
+            databaseURL: "https://studyforge-61a08-default-rtdb.firebaseio.com",
+            projectId: "studyforge-61a08",
+            storageBucket: "studyforge-61a08.firebasestorage.app",
+            messagingSenderId: "1029335680203",
+            appId: "1:1029335680203:web:8f0f6af1b883deb0c8474e"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root{ --primary:#2563eb; --bg:#0f172a; --glass:rgba(30, 41, 59, 0.7); --glass-border:rgba(96, 165, 250, 0.3); --text:#ffffff; }
@@ -42,7 +58,6 @@
         .hidden{ display:none !important; }
         .screen{ display:none; height:100%; }
         .screen.active{ display:block; }
-        .feedback-box { padding: 12px; border-radius: 10px; margin-top: 10px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
         @media(max-width:900px){ body{ flex-direction:column; } .sidebar{ width:100%; padding:15px; } }
     </style>
 </head>
@@ -115,13 +130,25 @@
     </div>
 
     <script>
+        // --- Sincronização Firebase ---
+        function syncFirebase(banco) {
+            db.ref('bancoEstudos').set(banco);
+        }
+
         window.addEventListener("load", () => {
+            // Carrega dados da nuvem ao iniciar
+            db.ref('bancoEstudos').once('value').then(snapshot => {
+                if(snapshot.exists()) localStorage.setItem('bancoEstudos', JSON.stringify(snapshot.val()));
+                atualizarContadores();
+            });
+
             setTimeout(() => {
                 const splash = document.getElementById("splashScreen");
                 splash.classList.add("fade-out");
                 setTimeout(() => { splash.remove(); }, 800);
             }, 3000);
         });
+        // ------------------------------
 
         function resetForm() {
             document.getElementById('editIndex').value = "-1";
@@ -157,6 +184,7 @@
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
             localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco); // Sincroniza na nuvem
             location.reload();
         }
 
@@ -213,6 +241,7 @@
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             banco.splice(index, 1);
             localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco); // Sincroniza exclusão na nuvem
             location.reload();
         }
 
@@ -233,20 +262,24 @@
             const container = document.getElementById('conteudoQuestao');
             container.innerHTML = `<h3>${materia}</h3>`;
             questoes.forEach((q, idx) => {
-                container.innerHTML += `<div class="card"><p><strong>${q.enunciado}</strong></p><div id="feed-${idx}"></div>${q.opcoes.map((op, i) => `<button class="btn" style="background:#334155" onclick="verificar(${i}, ${q.correta}, 'feed-${idx}')">${op}</button>`).join('')}</div>`;
+                container.innerHTML += `<div class="card" id="q-${idx}"><p><strong>${q.enunciado}</strong></p>
+                ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta}, 'q-${idx}')">${op}</button>`).join('')}</div>`;
             });
             document.getElementById('areaQuestao').classList.remove('hidden');
         }
 
-        function verificar(escolhida, correta, feedId){
-            const element = document.getElementById(feedId);
+        function verificar(btn, escolhida, correta, containerId){
+            const container = document.getElementById(containerId);
+            const botoes = container.querySelectorAll('.opt-btn');
+            botoes.forEach(b => b.style.pointerEvents = 'none');
+            
             if(escolhida == correta) { 
                 localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); 
-                element.innerHTML = `<div class="feedback-box" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;"><i class="fas fa-check-circle"></i> Correto!</div>`; 
-            }
-            else { 
+                btn.style.background = "#22c55e"; 
+            } else { 
                 localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); 
-                element.innerHTML = `<div class="feedback-box" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171;"><i class="fas fa-times-circle"></i> Errado!</div>`; 
+                btn.style.background = "#ef4444"; 
+                botoes[correta].style.border = "3px solid #22c55e";
             }
             atualizarContadores();
         }
