@@ -130,16 +130,18 @@
     </div>
 
     <script>
-        // --- Sincronização Firebase ---
-        function syncFirebase(banco) {
-            db.ref('bancoEstudos').set(banco);
-        }
-
+        // --- Sincronização e Inicialização ---
         window.addEventListener("load", () => {
-            // Carrega dados da nuvem ao iniciar
-            db.ref('bancoEstudos').once('value').then(snapshot => {
-                if(snapshot.exists()) localStorage.setItem('bancoEstudos', JSON.stringify(snapshot.val()));
+            db.ref('bancoEstudos').on('value', (snapshot) => {
+                let data = snapshot.val();
+                // Converte objeto do Firebase para array se necessário
+                const banco = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+                localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+                
+                // Força atualização visual
                 atualizarContadores();
+                if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
+                if(document.getElementById('questoes').classList.contains('active')) carregarMenuMaterias();
             });
 
             setTimeout(() => {
@@ -148,8 +150,22 @@
                 setTimeout(() => { splash.remove(); }, 800);
             }, 3000);
         });
-        // ------------------------------
 
+        function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
+
+        function atualizarContadores(){
+            const dados = localStorage.getItem('bancoEstudos');
+            const banco = dados ? JSON.parse(dados) : [];
+            
+            // Calcula matérias únicas
+            const materiasUnicas = new Set(banco.map(q => q.materia)).size;
+            
+            document.getElementById('totalMaterias').innerText = materiasUnicas;
+            document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
+            document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
+        }
+
+        // --- Funções de Gestão ---
         function resetForm() {
             document.getElementById('editIndex').value = "-1";
             document.getElementById('materiaInput').value = "";
@@ -163,29 +179,30 @@
             document.getElementById('formAdd').classList.remove('hidden');
         }
 
-        function editarQuestao(index){
-            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            const q = banco[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('materiaInput').value = q.materia;
-            document.getElementById('enunciadoInput').value = q.enunciado;
-            document.getElementById('op1').value = q.opcoes[0];
-            document.getElementById('op2').value = q.opcoes[1];
-            document.getElementById('op3').value = q.opcoes[2];
-            document.getElementById('op4').value = q.opcoes[3];
-            document.getElementById('op5').value = q.opcoes[4];
-            document.getElementById('corretaSelect').value = q.correta;
-            document.getElementById('formAdd').classList.remove('hidden');
-        }
-
         function salvarQuestao(){
             const index = parseInt(document.getElementById('editIndex').value);
-            const nova = { materia: document.getElementById('materiaInput').value, enunciado: document.getElementById('enunciadoInput').value, opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], correta: document.getElementById('corretaSelect').value };
+            const nova = { 
+                materia: document.getElementById('materiaInput').value, 
+                enunciado: document.getElementById('enunciadoInput').value, 
+                opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], 
+                correta: document.getElementById('corretaSelect').value 
+            };
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
+            
             localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-            syncFirebase(banco); // Sincroniza na nuvem
-            location.reload();
+            syncFirebase(banco);
+            atualizarContadores();
+            document.getElementById('formAdd').classList.add('hidden');
+        }
+
+        function executarDelecao(index) {
+            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            banco.splice(index, 1);
+            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco);
+            atualizarContadores();
+            listarDisciplinasUnicas();
         }
 
         function confirmarAcao(titulo, msg, acao) {
@@ -237,13 +254,6 @@
         function deletarQuestao(index) {
             confirmarAcao('Excluir?', 'Tem certeza que deseja apagar?', `executarDelecao(${index})`);
         }
-        function executarDelecao(index) {
-            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            banco.splice(index, 1);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-            syncFirebase(banco); // Sincroniza exclusão na nuvem
-            location.reload();
-        }
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
@@ -283,14 +293,6 @@
             }
             atualizarContadores();
         }
-
-        function atualizarContadores(){
-            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
-            document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
-            document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
-        }
-        atualizarContadores();
     </script>
 </body>
 </html>
