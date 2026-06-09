@@ -47,7 +47,7 @@
         .main{ flex:1; padding:25px; overflow-y:auto; }
         .card{ background: var(--glass); backdrop-filter:blur(10px); border:1px solid var(--glass-border); border-radius:20px; padding:25px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
         h1{ font-size:34px; text-align:center; margin-bottom:20px; }
-        .btn{ border:none; width:100%; padding:13px; margin-bottom:12px; border-radius:14px; cursor:pointer; font-weight:600; color:white; background:linear-gradient(135deg,#3b82f6,#8b5cf6); transition:.3s; font-size: 22px; display:flex; align-items:center; gap:10px; justify-content:center; }
+        .btn{ border:none; width:100%; padding:13px; margin-bottom:12px; border-radius:14px; cursor:pointer; font-weight:600; color:white; background:linear-gradient(135deg,#3b82f6,#8b5cf6); transition:.3s; font-size: 20px; display:flex; align-items:center; gap:10px; justify-content:center; }
         .btn-edit{ background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
         .btn-del{ background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
         .modal-overlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:1000; }
@@ -68,7 +68,6 @@
         <div class="title-splash">Gabarita AI</div>
         <div class="subtitle-splash">Método Prático Para Sua Aprovação</div>
         <div class="loading-container"><div class="loading-bar"></div></div>
-        <div class="loading-text">Carregando ambiente de estudos...</div>
     </div>
 
     <div id="customModal" class="modal-overlay">
@@ -123,13 +122,16 @@
             <h2>Praticar</h2>
             <div id="menuMaterias"></div>
             <div id="areaQuestao" class="hidden">
-                <button class="btn" onclick="openScreen('questoes')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                <button class="btn" onclick="openScreen('questoes')"><i class="fas fa-arrow-left"></i> Voltar ao Menu</button>
                 <div id="conteudoQuestao"></div>
             </div>
         </div>
     </div>
 
     <script>
+        let questoesParaResponder = [];
+        let indiceAtual = 0;
+
         window.addEventListener("load", () => {
             db.ref('bancoEstudos').on('value', (snapshot) => {
                 let data = snapshot.val();
@@ -138,12 +140,7 @@
                 atualizarContadores();
                 if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
             });
-
-            setTimeout(() => {
-                const splash = document.getElementById("splashScreen");
-                splash.classList.add("fade-out");
-                setTimeout(() => { splash.remove(); }, 800);
-            }, 3000);
+            setTimeout(() => { document.getElementById("splashScreen").classList.add("fade-out"); }, 3000);
         });
 
         function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
@@ -196,20 +193,11 @@
             listarDisciplinasUnicas();
         }
 
-        function executarDelecao(index) {
-            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            banco.splice(index, 1);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-            syncFirebase(banco);
-            atualizarContadores();
-            listarDisciplinasUnicas();
-        }
-
         function confirmarAcao(titulo, msg, acao) {
             document.getElementById('modalTitle').innerText = titulo;
             document.getElementById('modalMsg').innerText = msg;
-            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444; color:white;" onclick="fecharModal()">Não</button>
-                                                              <button class="modal-btn" style="background:#22c55e; color:white;" onclick="${acao}; fecharModal();">Sim</button>`;
+            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444;" onclick="fecharModal()">Não</button>
+                                                              <button class="modal-btn" style="background:#22c55e;" onclick="${acao}; fecharModal();">Sim</button>`;
             document.getElementById('customModal').style.display = 'flex';
         }
         function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
@@ -245,33 +233,71 @@
         }
 
         function deletarQuestao(index) { confirmarAcao('Excluir?', 'Tem certeza?', `executarDelecao(${index})`); }
+        function executarDelecao(index) {
+            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            banco.splice(index, 1);
+            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco);
+            atualizarContadores();
+            listarDisciplinasUnicas();
+        }
+
+        // --- Nova Lógica de Prática ---
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const menu = document.getElementById('menuMaterias');
             menu.classList.remove('hidden');
             document.getElementById('areaQuestao').classList.add('hidden');
-            menu.innerHTML = '';
-            [...new Set(banco.map(q => q.materia))].forEach(m => menu.innerHTML += `<button class="btn" onclick="mostrarQuestoes('${m}')">${m}</button>`);
+            menu.innerHTML = '<h3>Selecione uma matéria:</h3>';
+            [...new Set(banco.map(q => q.materia))].forEach(m => menu.innerHTML += `<button class="btn" onclick="iniciarSessao('${m}')">${m}</button>`);
         }
 
-        function mostrarQuestoes(materia) {
+        function iniciarSessao(materia) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            const container = document.getElementById('conteudoQuestao');
-            container.innerHTML = `<h3>${materia}</h3>`;
-            banco.filter(q => q.materia === materia).forEach((q, idx) => {
-                container.innerHTML += `<div class="card" id="q-${idx}"><p><strong>${q.enunciado}</strong></p>
-                ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta}, 'q-${idx}')">${op}</button>`).join('')}</div>`;
-            });
-            document.getElementById('areaQuestao').classList.remove('hidden');
+            questoesParaResponder = banco
+                .filter(q => q.materia === materia)
+                .sort(() => Math.random() - 0.5);
+            indiceAtual = 0;
+            document.getElementById('menuMaterias').classList.add('hidden');
+            renderizarQuestao();
         }
 
-        function verificar(btn, escolhida, correta, containerId){
-            const container = document.getElementById(containerId);
-            const botoes = container.querySelectorAll('.opt-btn');
+        function renderizarQuestao() {
+            const container = document.getElementById('conteudoQuestao');
+            document.getElementById('areaQuestao').classList.remove('hidden');
+
+            if (indiceAtual >= questoesParaResponder.length) {
+                container.innerHTML = `<h3>Sessão Finalizada!</h3><p>Você respondeu todas as questões desta matéria.</p>
+                                       <button class="btn" onclick="openScreen('questoes')">Voltar ao menu</button>`;
+                return;
+            }
+
+            const q = questoesParaResponder[indiceAtual];
+            container.innerHTML = `<h3>${q.materia} (${indiceAtual + 1}/${questoesParaResponder.length})</h3>
+                <div class="card">
+                    <p><strong>${q.enunciado}</strong></p>
+                    ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta})">${op}</button>`).join('')}
+                </div>
+                <div id="proxContainer"></div>`;
+        }
+
+        function verificar(btn, escolhida, correta){
+            const botoes = document.querySelectorAll('.opt-btn');
             botoes.forEach(b => b.style.pointerEvents = 'none');
-            if(escolhida == correta) { localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); btn.style.background = "#22c55e"; }
-            else { localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); btn.style.background = "#ef4444"; botoes[correta].style.border = "3px solid #22c55e"; }
+            
+            if(escolhida == correta) { 
+                localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); 
+                btn.style.background = "#22c55e"; 
+            } else { 
+                localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); 
+                btn.style.background = "#ef4444"; 
+                botoes[correta].style.background = "#22c55e";
+            }
+            
+            document.getElementById('proxContainer').innerHTML = 
+                `<button class="btn" style="background:#6366f1" onclick="indiceAtual++; renderizarQuestao()">Próxima Questão</button>`;
+            
             atualizarContadores();
         }
     </script>
