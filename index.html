@@ -10,13 +10,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDFZTtSWZntDvpdsrv-A0eU9GBIbMVSVhM",
-            authDomain: "studyforge-61a08.firebaseapp.com",
-            databaseURL: "https://studyforge-61a08-default-rtdb.firebaseio.com",
-            projectId: "studyforge-61a08",
-            storageBucket: "studyforge-61a08.firebasestorage.app",
-            messagingSenderId: "1029335680203",
-            appId: "1:1029335680203:web:8f0f6af1b883deb0c8474e"
+            apiKey: "AIzaSyAaDH9-mAKj8vE-L6AVVuOI84SuNh678u8",
+            authDomain: "gabarita-ai-d4ab8.firebaseapp.com",
+            databaseURL: "https://gabarita-ai-d4ab8-default-rtdb.firebaseio.com",
+            projectId: "gabarita-ai-d4ab8",
+            storageBucket: "gabarita-ai-d4ab8.firebasestorage.app",
+            messagingSenderId: "991910646567",
+            appId: "1:991910646567:web:fbb6be70c7c2d8f7e78f02"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -178,45 +178,23 @@
             document.getElementById('corretaSelect').value = q.correta;
             document.getElementById('formAdd').classList.remove('hidden');
         }
-        
+
         function salvarQuestao(){
-    const index = parseInt(document.getElementById('editIndex').value);
-    const nova = { 
-        materia: document.getElementById('materiaInput').value, 
-        enunciado: document.getElementById('enunciadoInput').value, 
-        opcoes: [
-            document.getElementById('op1').value, 
-            document.getElementById('op2').value, 
-            document.getElementById('op3').value, 
-            document.getElementById('op4').value, 
-            document.getElementById('op5').value
-        ], 
-        correta: document.getElementById('corretaSelect').value 
-    };
-
-    // 1. Pega o banco atual
-    let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-    
-    // 2. Adiciona ou Edita
-    if(index > -1) {
-        banco[index] = nova;
-    } else {
-        banco.push(nova);
-    }
-
-    // 3. Salva no Firebase (isso dispara a atualização em todos os outros aparelhos)
-    db.ref('bancoEstudos').set(banco).then(() => {
-        alert("Matéria compartilhada com todos!");
-        document.getElementById('formAdd').classList.add('hidden');
-    }).catch((error) => {
-        alert("Erro ao compartilhar: " + error.message);
-    });
-
-    // 4. Atualiza a tela
-    localStorage.setItem('bancoEstudos', JSON.stringify(banco));
-    atualizarContadores();
-    listarDisciplinasUnicas();
-}
+            const index = parseInt(document.getElementById('editIndex').value);
+            const nova = { 
+                materia: document.getElementById('materiaInput').value, 
+                enunciado: document.getElementById('enunciadoInput').value, 
+                opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], 
+                correta: document.getElementById('corretaSelect').value 
+            };
+            let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
+            if(index > -1) banco[index] = nova; else banco.push(nova);
+            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+            syncFirebase(banco);
+            document.getElementById('formAdd').classList.add('hidden');
+            atualizarContadores();
+            listarDisciplinasUnicas();
+        }
 
         function executarDelecao(index) {
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
@@ -299,4 +277,3 @@
     </script>
 </body>
 </html>
-
