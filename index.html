@@ -8,15 +8,16 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDFZTtSWZntDvpdsrv-A0eU9GBIbMVSVhM",
-            authDomain: "studyforge-61a08.firebaseapp.com",
-            databaseURL: "https://studyforge-61a08-default-rtdb.firebaseio.com",
-            projectId: "studyforge-61a08",
-            storageBucket: "studyforge-61a08.firebasestorage.app",
-            messagingSenderId: "1029335680203",
-            appId: "1:1029335680203:web:8f0f6af1b883deb0c8474e"
+            apiKey: "AIzaSyAaDH9-mAKj8vE-L6AVVuOI84SuNh678u8",
+            authDomain: "gabarita-ai-d4ab8.firebaseapp.com",
+            databaseURL: "https://gabarita-ai-d4ab8-default-rtdb.firebaseio.com",
+            projectId: "gabarita-ai-d4ab8",
+            storageBucket: "gabarita-ai-d4ab8.firebasestorage.app",
+            messagingSenderId: "991910646567",
+            appId: "1:991910646567:web:fbb6be70c7c2d8f7e78f02"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -33,11 +34,10 @@
         .subtitle-splash{ margin-top:10px; color:#cbd5e1; font-size:18px; text-align:center; }
         .loading-container{ width:280px; height:10px; background:rgba(255,255,255,.1); border-radius:50px; overflow:hidden; margin-top:40px; }
         .loading-bar{ height:100%; width:0%; background:linear-gradient(90deg,#3b82f6,#8b5cf6); animation: loading 3s linear forwards; }
-        .loading-text{ margin-top:15px; color:#94a3b8; font-size:15px; }
+        .fade-out{ animation: fadeOut .8s forwards; }
         @keyframes loading{ from{width:0%;} to{width:100%;} }
         @keyframes floatLogo{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
         @keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.2);} }
-        .fade-out{ animation: fadeOut .8s forwards; }
         @keyframes fadeOut{ to{ opacity:0; visibility:hidden; } }
 
         *{ margin:0; padding:0; box-sizing:border-box; }
@@ -144,6 +144,7 @@
         });
 
         function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
+        
         function atualizarContadores(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
@@ -193,16 +194,6 @@
             listarDisciplinasUnicas();
         }
 
-        function confirmarAcao(titulo, msg, acao) {
-            document.getElementById('modalTitle').innerText = titulo;
-            document.getElementById('modalMsg').innerText = msg;
-            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444;" onclick="fecharModal()">Não</button>
-                                                              <button class="modal-btn" style="background:#22c55e;" onclick="${acao}; fecharModal();">Sim</button>`;
-            document.getElementById('customModal').style.display = 'flex';
-        }
-        function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
-        function resetarEstatisticas() { localStorage.removeItem('acertos'); localStorage.removeItem('erros'); atualizarContadores(); }
-
         function openScreen(id){
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -242,7 +233,15 @@
             listarDisciplinasUnicas();
         }
 
-        // --- Nova Lógica de Prática ---
+        function confirmarAcao(titulo, msg, acao) {
+            document.getElementById('modalTitle').innerText = titulo;
+            document.getElementById('modalMsg').innerText = msg;
+            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444;" onclick="fecharModal()">Não</button>
+                                                              <button class="modal-btn" style="background:#22c55e;" onclick="${acao}; fecharModal();">Sim</button>`;
+            document.getElementById('customModal').style.display = 'flex';
+        }
+        function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
+        function resetarEstatisticas() { localStorage.removeItem('acertos'); localStorage.removeItem('erros'); atualizarContadores(); }
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
@@ -255,9 +254,7 @@
 
         function iniciarSessao(materia) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            questoesParaResponder = banco
-                .filter(q => q.materia === materia)
-                .sort(() => Math.random() - 0.5);
+            questoesParaResponder = banco.filter(q => q.materia === materia).sort(() => Math.random() - 0.5);
             indiceAtual = 0;
             document.getElementById('menuMaterias').classList.add('hidden');
             renderizarQuestao();
@@ -266,42 +263,25 @@
         function renderizarQuestao() {
             const container = document.getElementById('conteudoQuestao');
             document.getElementById('areaQuestao').classList.remove('hidden');
-
             if (indiceAtual >= questoesParaResponder.length) {
-                container.innerHTML = `<h3>Sessão Finalizada!</h3><p>Você respondeu todas as questões desta matéria.</p>
-                                       <button class="btn" onclick="openScreen('questoes')">Voltar ao menu</button>`;
+                container.innerHTML = `<h3>Sessão Finalizada!</h3><button class="btn" onclick="openScreen('questoes')">Voltar ao menu</button>`;
                 return;
             }
-
             const q = questoesParaResponder[indiceAtual];
             container.innerHTML = `<h3>${q.materia} (${indiceAtual + 1}/${questoesParaResponder.length})</h3>
-                <div class="card">
-                    <p><strong>${q.enunciado}</strong></p>
-                    ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta})">${op}</button>`).join('')}
-                </div>
+                <div class="card"><p><strong>${q.enunciado}</strong></p>
+                ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta})">${op}</button>`).join('')}</div>
                 <div id="proxContainer"></div>`;
         }
 
         function verificar(btn, escolhida, correta){
             const botoes = document.querySelectorAll('.opt-btn');
             botoes.forEach(b => b.style.pointerEvents = 'none');
-            
-            if(escolhida == correta) { 
-                localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); 
-                btn.style.background = "#22c55e"; 
-            } else { 
-                localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); 
-                btn.style.background = "#ef4444"; 
-                botoes[correta].style.background = "#22c55e";
-            }
-            
-            document.getElementById('proxContainer').innerHTML = 
-                `<button class="btn" style="background:#6366f1" onclick="indiceAtual++; renderizarQuestao()">Próxima Questão</button>`;
-            
+            if(escolhida == correta) { localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); btn.style.background = "#22c55e"; }
+            else { localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); btn.style.background = "#ef4444"; botoes[correta].style.background = "#22c55e"; }
+            document.getElementById('proxContainer').innerHTML = `<button class="btn" style="background:#6366f1" onclick="indiceAtual++; renderizarQuestao()">Próxima Questão</button>`;
             atualizarContadores();
         }
     </script>
 </body>
 </html>
-
-    
