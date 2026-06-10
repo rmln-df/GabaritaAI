@@ -133,17 +133,27 @@
         let indiceAtual = 0;
 
         window.addEventListener("load", () => {
+            // Listener unificado que forçará a atualização em todos os dispositivos
             db.ref('bancoEstudos').on('value', (snapshot) => {
                 let data = snapshot.val();
+                // Forçamos o dado a ser um array puro
                 const banco = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
                 localStorage.setItem('bancoEstudos', JSON.stringify(banco));
+                
                 atualizarContadores();
                 if(document.getElementById('disciplinas').classList.contains('active')) listarDisciplinasUnicas();
+                if(document.getElementById('questoes').classList.contains('active')) carregarMenuMaterias();
+                console.log("Banco sincronizado via Firebase:", banco);
             });
             setTimeout(() => { document.getElementById("splashScreen").classList.add("fade-out"); }, 3000);
         });
 
-        function syncFirebase(banco) { db.ref('bancoEstudos').set(banco); }
+        function syncFirebase(banco) { 
+            // Converte para array limpo para evitar conflitos de índices do Firebase
+            const bancoLimpo = Object.values(banco);
+            db.ref('bancoEstudos').set(bancoLimpo);
+            console.log("Enviando para Firebase...");
+        }
         
         function atualizarContadores(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
@@ -187,11 +197,8 @@
             };
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
             syncFirebase(banco);
             document.getElementById('formAdd').classList.add('hidden');
-            atualizarContadores();
-            listarDisciplinasUnicas();
         }
 
         function openScreen(id){
@@ -227,10 +234,7 @@
         function executarDelecao(index) {
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             banco.splice(index, 1);
-            localStorage.setItem('bancoEstudos', JSON.stringify(banco));
             syncFirebase(banco);
-            atualizarContadores();
-            listarDisciplinasUnicas();
         }
 
         function confirmarAcao(titulo, msg, acao) {
@@ -284,4 +288,5 @@
         }
     </script>
 </body>
-</html>
+                    </html>
+
