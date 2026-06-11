@@ -21,6 +21,29 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        
+        
+        
+        function inserirSimbolo(simbolo){
+
+    const campo =
+        document.getElementById('enunciadoInput');
+
+    const inicio = campo.selectionStart;
+    const fim = campo.selectionEnd;
+
+    campo.value =
+        campo.value.substring(0, inicio)
+        + simbolo +
+        campo.value.substring(fim);
+
+    campo.focus();
+
+    campo.selectionStart =
+        campo.selectionEnd =
+        inicio + simbolo.length;
+}
+        
     </script>
     
     <style>
@@ -59,6 +82,35 @@
         .screen{ display:none; height:100%; }
         .screen.active{ display:block; }
         @media(max-width:900px){ body{ flex-direction:column; } .sidebar{ width:100%; padding:15px; } }
+        
+   
+    
+    
+    .math-toolbar{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:8px;
+    margin-bottom:10px;
+}
+
+.math-toolbar button{
+    min-width:50px;
+    height:40px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    flex-shrink:0;
+}
+    
+    
+} 
+
+
+        
     </style>
 </head>
 <body>
@@ -103,7 +155,74 @@
             <div id="formAdd" class="card hidden">
                 <input type="hidden" id="editIndex" value="-1">
                 <input type="text" id="materiaInput" placeholder="Nome da Matéria">
-                <textarea id="enunciadoInput" placeholder="Enunciado"></textarea>
+                
+                
+                
+                <div class="math-toolbar">
+
+    <button type="button" onclick="inserirSimbolo('√')">√</button>
+    <button type="button" onclick="inserirSimbolo('∛')">∛</button>
+    <button type="button" onclick="inserirSimbolo('²')">²</button>
+    <button type="button" onclick="inserirSimbolo('³')">³</button>
+    <button type="button" onclick="inserirSimbolo('⁴')">⁴</button>
+
+    <button type="button" onclick="inserirSimbolo('π')">π</button>
+    <button type="button" onclick="inserirSimbolo('∞')">∞</button>
+    <button type="button" onclick="inserirSimbolo('Δ')">Δ</button>
+    <button type="button" onclick="inserirSimbolo('θ')">θ</button>
+    <button type="button" onclick="inserirSimbolo('α')">α</button>
+    <button type="button" onclick="inserirSimbolo('β')">β</button>
+    <button type="button" onclick="inserirSimbolo('λ')">λ</button>
+
+    <button type="button" onclick="inserirSimbolo('≤')">≤</button>
+    <button type="button" onclick="inserirSimbolo('≥')">≥</button>
+    <button type="button" onclick="inserirSimbolo('≠')">≠</button>
+    <button type="button" onclick="inserirSimbolo('≈')">≈</button>
+
+    <button type="button" onclick="inserirSimbolo('±')">±</button>
+    <button type="button" onclick="inserirSimbolo('×')">×</button>
+    <button type="button" onclick="inserirSimbolo('÷')">÷</button>
+    <button type="button" onclick="inserirSimbolo('%')">%</button>
+
+    <button type="button" onclick="inserirSimbolo('°')">°</button>
+    <button type="button" onclick="inserirSimbolo('′')">′</button>
+    <button type="button" onclick="inserirSimbolo('″')">″</button>
+
+    <button type="button" onclick="inserirSimbolo('→')">→</button>
+    <button type="button" onclick="inserirSimbolo('←')">←</button>
+    <button type="button" onclick="inserirSimbolo('↔')">↔</button>
+
+    <button type="button" onclick="inserirSimbolo('∑')">∑</button>
+    <button type="button" onclick="inserirSimbolo('∫')">∫</button>
+    <button type="button" onclick="inserirSimbolo('∂')">∂</button>
+
+    <button type="button" onclick="inserirSimbolo('∈')">∈</button>
+    <button type="button" onclick="inserirSimbolo('∉')">∉</button>
+    <button type="button" onclick="inserirSimbolo('⊂')">⊂</button>
+    <button type="button" onclick="inserirSimbolo('⊃')">⊃</button>
+
+    <button type="button" onclick="inserirSimbolo('∪')">∪</button>
+    <button type="button" onclick="inserirSimbolo('∩')">∩</button>
+
+    <button type="button" onclick="inserirSimbolo('∠')">∠</button>
+    <button type="button" onclick="inserirSimbolo('⊥')">⊥</button>
+    <button type="button" onclick="inserirSimbolo('∥')">∥</button>
+
+    <button type="button" onclick="inserirSimbolo('ℝ')">ℝ</button>
+    <button type="button" onclick="inserirSimbolo('ℕ')">ℕ</button>
+    <button type="button" onclick="inserirSimbolo('ℤ')">ℤ</button>
+    <button type="button" onclick="inserirSimbolo('ℚ')">ℚ</button>
+
+    <button type="button" onclick="inserirSimbolo('μ')">μ</button>
+    <button type="button" onclick="inserirSimbolo('σ')">σ</button>
+    <button type="button" onclick="inserirSimbolo('ρ')">ρ</button>
+
+</div>
+
+
+
+<textarea id="enunciadoInput" placeholder="Enunciado"></textarea>
+                
                 <input type="text" id="op1" placeholder="A"><input type="text" id="op2" placeholder="B">
                 <input type="text" id="op3" placeholder="C"><input type="text" id="op4" placeholder="D">
                 <input type="text" id="op5" placeholder="E">
@@ -288,5 +407,4 @@
         }
     </script>
 </body>
-                    </html>
-
+</html>
