@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>  
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAaDH9-mAKj8vE-L6AVVuOI84SuNh678u8",
@@ -21,9 +20,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        
-        
+               
         function inserirSimbolo(simbolo){
 
     const campo =
@@ -83,9 +80,6 @@
         .screen.active{ display:block; }
         @media(max-width:900px){ body{ flex-direction:column; } .sidebar{ width:100%; padding:15px; } }
         
-   
-    
-    
     .math-toolbar{
     display:flex;
     gap:6px;
@@ -104,13 +98,9 @@
     font-size:18px;
     cursor:pointer;
     flex-shrink:0;
-}
-    
-    
+}    
 } 
-
-
-        
+       
     </style>
 </head>
 <body>
@@ -154,15 +144,12 @@
             <h2>Gerenciamento</h2>
             <div id="formAdd" class="card hidden">
                 <input type="hidden" id="editIndex" value="-1">
-                <input type="text" id="materiaInput" placeholder="Nome da Matéria">
-                
-                
+                <input type="text" id="materiaInput" placeholder="Nome da Matéria">           
                 
                 <div class="math-toolbar">
 
-    <button type="button" onclick="inserirSimbolo('√')">√</button>
-    <button type="button" onclick="inserirSimbolo('∛')">∛</button>
-
+<button type="button" onclick="inserirSimbolo('√')">√</button>
+<button type="button" onclick="inserirSimbolo('∛')">∛</button>
     <button type="button" onclick="inserirSimbolo('⁰')">⁰</button>
     <button type="button" onclick="inserirSimbolo('¹')">¹</button>
     <button type="button" onclick="inserirSimbolo('²')">²</button>
@@ -173,7 +160,7 @@
     <button type="button" onclick="inserirSimbolo('⁷')">⁷</button>
     <button type="button" onclick="inserirSimbolo('⁸')">⁸</button>
     <button type="button" onclick="inserirSimbolo('⁹')">⁹</button>
-    <button type="button" onclick="inserirSimbolo('₀')">₀</button>
+<button type="button" onclick="inserirSimbolo('₀')">₀</button>
 <button type="button" onclick="inserirSimbolo('₁')">₁</button>
 <button type="button" onclick="inserirSimbolo('₂')">₂</button>
 <button type="button" onclick="inserirSimbolo('₃')">₃</button>
@@ -183,76 +170,59 @@
 <button type="button" onclick="inserirSimbolo('₇')">₇</button>
 <button type="button" onclick="inserirSimbolo('₈')">₈</button>
 <button type="button" onclick="inserirSimbolo('₉')">₉</button>
+    <button type="button" onclick="inserirSimbolo('±')">±</button>
+    <button type="button" onclick="inserirSimbolo('+')">+</button>
+    <button type="button" onclick="inserirSimbolo('-')">-</button>    
+    <button type="button" onclick="inserirSimbolo('÷')">÷</button>
+    <button type="button" onclick="inserirSimbolo('%')">%</button>
+    <button type="button" onclick="inserirSimbolo('°')">°</button>
+    <button type="button" onclick="inserirSimbolo('′')">′</button>
+    <button type="button" onclick="inserirSimbolo('″')">″</button>                    
+<button type="button" onclick="inserirSimbolo('×')">×</button>
+<button type="button" onclick="inserirSimbolo('ᵧ')">ᵧ</button>                  
 <button type="button" onclick="inserirSimbolo('ₐ')">ₐ</button>
 <button type="button" onclick="inserirSimbolo('ₑ')">ₑ</button>
-<button type="button" onclick="inserirSimbolo('ₓ')">ₓ</button>
-<button type="button" onclick="inserirSimbolo('ᵧ')">ᵧ</button>
 <button type="button" onclick="inserirSimbolo('ₙ')">ₙ</button>
 <button type="button" onclick="inserirSimbolo('ₖ')">ₖ</button>
-
     <button type="button" onclick="inserirSimbolo('π')">π</button>
     <button type="button" onclick="inserirSimbolo('∞')">∞</button>
     <button type="button" onclick="inserirSimbolo('Δ')">Δ</button>
     <button type="button" onclick="inserirSimbolo('θ')">θ</button>
     <button type="button" onclick="inserirSimbolo('α')">α</button>
     <button type="button" onclick="inserirSimbolo('β')">β</button>
-    <button type="button" onclick="inserirSimbolo('λ')">λ</button>
-
-    <button type="button" onclick="inserirSimbolo('≤')">≤</button>
-    <button type="button" onclick="inserirSimbolo('≥')">≥</button>
-    <button type="button" onclick="inserirSimbolo('≠')">≠</button>
-    <button type="button" onclick="inserirSimbolo('≈')">≈</button>
-
-    <button type="button" onclick="inserirSimbolo('±')">±</button>
-    <button type="button" onclick="inserirSimbolo('+')">+</button>
-    <button type="button" onclick="inserirSimbolo('-')">-</button>
-    <button type="button" onclick="inserirSimbolo('×')">×</button>
-    <button type="button" onclick="inserirSimbolo('ᵧ')">ᵧ</button>
-    <button type="button" onclick="inserirSimbolo('÷')">÷</button>
-    <button type="button" onclick="inserirSimbolo('%')">%</button>
-
-    <button type="button" onclick="inserirSimbolo('°')">°</button>
-    <button type="button" onclick="inserirSimbolo('′')">′</button>
-    <button type="button" onclick="inserirSimbolo('″')">″</button>
-
-    <button type="button" onclick="inserirSimbolo('→')">→</button>
-    <button type="button" onclick="inserirSimbolo('←')">←</button>
-    <button type="button" onclick="inserirSimbolo('↔')">↔</button>
-
+    <button type="button" onclick="inserirSimbolo('λ')">λ</button>                  
+<button type="button" onclick="inserirSimbolo('≤')">≤</button>
+<button type="button" onclick="inserirSimbolo('≥')">≥</button>
+<button type="button" onclick="inserirSimbolo('≠')">≠</button>
+<button type="button" onclick="inserirSimbolo('≈')">≈</button>
+<button type="button" onclick="inserirSimbolo('→')">→</button>
+<button type="button" onclick="inserirSimbolo('←')">←</button>
+<button type="button" onclick="inserirSimbolo('↔')">↔</button>
     <button onclick="inserirSimbolo('∑(i=1→n) ')">∑</button>
     <button onclick="inserirSimbolo('´f(x)= ')">'f(x)</button>
     <button onclick="inserirSimbolo('∫(a→b) ')">∫</button>
     <button onclick="inserirSimbolo('lim(x→∞) ')">lim</button>
     <button onclick="inserirSimbolo('log() ')">log</button>
     <button type="button" onclick="inserirSimbolo('∂')">∂</button>
-
-    <button type="button" onclick="inserirSimbolo('∈')">∈</button>
-    <button type="button" onclick="inserirSimbolo('∉')">∉</button>
-    <button type="button" onclick="inserirSimbolo('⊂')">⊂</button>
-    <button type="button" onclick="inserirSimbolo('⊃')">⊃</button>
-
-    <button type="button" onclick="inserirSimbolo('∪')">∪</button>
-    <button type="button" onclick="inserirSimbolo('∩')">∩</button>
-
+<button type="button" onclick="inserirSimbolo('∈')">∈</button>
+<button type="button" onclick="inserirSimbolo('∉')">∉</button>
+<button type="button" onclick="inserirSimbolo('⊂')">⊂</button>
+<button type="button" onclick="inserirSimbolo('⊃')">⊃</button>
+<button type="button" onclick="inserirSimbolo('∪')">∪</button>
+<button type="button" onclick="inserirSimbolo('∩')">∩</button>
     <button type="button" onclick="inserirSimbolo('∠')">∠</button>
     <button type="button" onclick="inserirSimbolo('⊥')">⊥</button>
     <button type="button" onclick="inserirSimbolo('∥')">∥</button>
-
     <button type="button" onclick="inserirSimbolo('ℝ')">ℝ</button>
     <button type="button" onclick="inserirSimbolo('ℕ')">ℕ</button>
     <button type="button" onclick="inserirSimbolo('ℤ')">ℤ</button>
     <button type="button" onclick="inserirSimbolo('ℚ')">ℚ</button>
-
     <button type="button" onclick="inserirSimbolo('μ')">μ</button>
     <button type="button" onclick="inserirSimbolo('σ')">σ</button>
     <button type="button" onclick="inserirSimbolo('ρ')">ρ</button>
-
 </div>
 
-
-
-<textarea id="enunciadoInput" placeholder="Enunciado"></textarea>
-                
+<textarea id="enunciadoInput" placeholder="Enunciado"></textarea>         
                 <input type="text" id="op1" placeholder="A"><input type="text" id="op2" placeholder="B">
                 <input type="text" id="op3" placeholder="C"><input type="text" id="op4" placeholder="D">
                 <input type="text" id="op5" placeholder="E">
