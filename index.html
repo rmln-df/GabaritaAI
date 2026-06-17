@@ -542,9 +542,21 @@ margin-top:10px;
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const lista = document.getElementById('listaDisciplinas');
             lista.innerHTML = '';
-            [...new Set(banco.map(q => q.materia))].forEach(materia => {
-                lista.innerHTML += `<button class="btn" onclick="exibirQuestoesDaMateria('${materia}')">${materia}</button>`;
-            });
+            
+            
+            
+            
+            const materias = [...new Set(banco.map(q => q.materia))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+materias.forEach(materia => {
+    lista.innerHTML += `
+        <button class="btn"
+        onclick="exibirQuestoesDaMateria('${materia}')">
+            ${materia}
+        </button>
+    `;
+});
         }
 
            function exibirQuestoesDaMateria(materia) {
@@ -597,7 +609,19 @@ margin-top:10px;
             menu.classList.remove('hidden');
             document.getElementById('areaQuestao').classList.add('hidden');
             menu.innerHTML = '<h3>Selecione uma matéria:</h3>';
-            [...new Set(banco.map(q => q.materia))].forEach(m => menu.innerHTML += `<button class="btn" onclick="iniciarSessao('${m}')">${m}</button>`);
+            
+            
+       const materias = [...new Set(banco.map(q => q.materia))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+materias.forEach(m => {
+    menu.innerHTML += `
+        <button class="btn"
+        onclick="iniciarSessao('${m}')">
+            ${m}
+        </button>
+    `;
+});     
         }
 
         function iniciarSessao(materia) {
