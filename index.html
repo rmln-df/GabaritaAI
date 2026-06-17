@@ -502,7 +502,7 @@ margin-top:10px;
             document.getElementById('formAdd').classList.remove('hidden');
         }
 
-       function editarQuestao(index) {
+        function editarQuestao(index) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const q = banco[index];
             document.getElementById('editIndex').value = index;
