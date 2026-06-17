@@ -76,6 +76,45 @@
         .fab{ position:fixed; right:30px; bottom:30px; width:70px; height:70px; border:none; border-radius:50%; color:white; font-size:40px; cursor:pointer; background:linear-gradient(135deg,#3b82f6,#8b5cf6) !important; box-shadow:0 15px 35px rgba(0,0,0,.5); z-index:999; display:flex; align-items:center; justify-content:center; padding:0; }
         input, textarea, select{ width:100%; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,.1); background:rgba(30, 41, 59, 0.5); color:white; margin-bottom:12px; outline:none; }
         .hidden{ display:none !important; }
+        .barra-container{
+
+    width:100%;
+    height:24px;
+
+    background:#334155;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+    margin-top:10px;
+}
+
+#barraAproveitamento{
+
+    width:0%;
+
+    height:100%;
+
+    background:linear-gradient(
+        90deg,
+        #22c55e,
+        #16a34a
+    );
+
+    transition:.6s;
+}
+
+#mensagemDesempenho{
+
+    text-align:center;
+
+    margin-top:12px;
+
+    font-size:18px;
+
+    font-weight:bold;
+}
         .screen{ display:none; height:100%; }
         .screen.active{ display:block; }
         @media(max-width:900px){ body{ flex-direction:column; } .sidebar{ width:100%; padding:15px; } }
@@ -158,11 +197,53 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
         <div id="dashboard" class="screen active">
             <h1><i class="fas fa-chart-pie"></i> Desempenho</h1>
             <div id="painelDados" class="card">
-                <p><i class="fas fa-layer-group"></i> Total de Matérias: <span id="totalMaterias">0</span></p>
-                <p><i class="fas fa-trophy" style="color: gold;"></i> Total de Acertos: <span id="totalAcertos">0</span></p>
-                <p><i class="fas fa-times-circle" style="color: #ef4444;"></i> Total de Erros: <span id="totalErros">0</span></p>
-                <button class="btn" style="background: #ef4444; margin-top: 15px;" onclick="confirmarAcao('Zerar?', 'Deseja apagar estatísticas?', 'resetarEstatisticas()')"><i class="fas fa-trash"></i> Zerar Estatísticas</button>
-            </div>
+
+    <p>
+        📚 Matérias:
+        <span id="totalMaterias">0</span>
+    </p>
+
+    <p>
+        🏆 Acertos:
+        <span id="totalAcertos">0</span>
+    </p>
+
+    <p>
+        ❌ Erros:
+        <span id="totalErros">0</span>
+    </p>
+
+    <br>
+
+    <h3>Aproveitamento Geral</h3>
+
+    <p id="porcentagemAcertos">
+        0%
+    </p>
+
+    <div class="barra-container">
+        <div id="barraAproveitamento"></div>
+    </div>
+
+    <p id="mensagemDesempenho">
+        Comece a praticar! 📚
+    </p>
+
+    <button
+        class="btn"
+        style="background:#ef4444;margin-top:15px;"
+        onclick="confirmarAcao(
+            'Zerar?',
+            'Deseja apagar estatísticas?',
+            'resetarEstatisticas()'
+        )">
+
+        <i class="fas fa-trash"></i>
+        Zerar Estatísticas
+
+    </button>
+
+</div>
         </div>
 
         <div id="disciplinas" class="screen">
@@ -302,12 +383,108 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
         }
         
         function atualizarContadores(){
+
+    const banco = JSON.parse(
+        localStorage.getItem(
+            'bancoEstudos'
+        ) || '[]'
+    );
+
+    const acertos = parseInt(
+        localStorage.getItem(
+            'acertos'
+        ) || 0
+    );
+
+    const erros = parseInt(
+        localStorage.getItem(
+            'erros'
+        ) || 0
+    );
+
+    const total = acertos + erros;
+
+    let porcentagem = 0;
+
+    if(total > 0){
+
+        porcentagem =
+            ((acertos / total) * 100)
+            .toFixed(1);
+    }
+
+    document.getElementById(
+        'totalMaterias'
+    ).innerText =
+        new Set(
+            banco.map(
+                q => q.materia
+            )
+        ).size;
+
+    document.getElementById(
+        'totalAcertos'
+    ).innerText = acertos;
+
+    document.getElementById(
+        'totalErros'
+    ).innerText = erros;
+
+    document.getElementById(
+        'porcentagemAcertos'
+    ).innerText =
+        porcentagem + "%";
+
+    document.getElementById(
+        'barraAproveitamento'
+    ).style.width =
+        porcentagem + "%";
+
+    let mensagem = "";
+
+    if(total === 0){
+
+        mensagem =
+            "Comece a praticar! 📚";
+    }
+
+    else if(porcentagem < 40){
+
+        mensagem =
+            "🔴 Precisa melhorar";
+    }
+
+    else if(porcentagem < 70){
+
+        mensagem =
+            "🟡 Bom desempenho";
+    }
+
+    else if(porcentagem < 90){
+
+        mensagem =
+            "🟢 Ótimo desempenho";
+    }
+
+    else{
+
+        mensagem =
+            "🏆 Excelente desempenho";
+    }
+
+    document.getElementById(
+        "mensagemDesempenho"
+    ).innerText =
+        mensagem;
+}
+       /* ☝️
+        function atualizarContadores(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
             document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
             document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
         }
-
+*/
         function resetForm() {
             document.getElementById('editIndex').value = "-1";
             document.getElementById('materiaInput').value = "";
@@ -392,7 +569,20 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
             document.getElementById('customModal').style.display = 'flex';
         }
         function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
-        function resetarEstatisticas() { localStorage.removeItem('acertos'); localStorage.removeItem('erros'); atualizarContadores(); }
+        function resetarEstatisticas(){
+
+    localStorage.setItem(
+        'acertos',
+        0
+    );
+
+    localStorage.setItem(
+        'erros',
+        0
+    );
+
+    atualizarContadores();
+}
 
         function carregarMenuMaterias(){
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
