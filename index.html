@@ -216,14 +216,28 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
     <br>
 
     <h3>Aproveitamento Geral</h3>
+    <div style="
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:10px;
+">
 
-    <p id="porcentagemAcertos">
-        0%
-    </p>
-
-    <div class="barra-container">
+    <div class="barra-container" style="flex:1;">
         <div id="barraAproveitamento"></div>
     </div>
+
+    <span id="porcentagemAcertos"
+    style="
+    font-weight:bold;
+    font-size:18px;
+    min-width:55px;
+    text-align:right;
+    ">
+        0%
+    </span>
+
+</div>
 
     <p id="mensagemDesempenho">
         Comece a praticar! 📚
@@ -477,14 +491,7 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
     ).innerText =
         mensagem;
 }
-       /* ☝️
-        function atualizarContadores(){
-            const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
-            document.getElementById('totalMaterias').innerText = new Set(banco.map(q => q.materia)).size;
-            document.getElementById('totalAcertos').innerText = localStorage.getItem('acertos') || 0;
-            document.getElementById('totalErros').innerText = localStorage.getItem('erros') || 0;
-        }
-*/
+
         function resetForm() {
             document.getElementById('editIndex').value = "-1";
             document.getElementById('materiaInput').value = "";
@@ -495,7 +502,7 @@ src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
             document.getElementById('formAdd').classList.remove('hidden');
         }
 
-        function editarQuestao(index) {
+       function editarQuestao(index) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const q = banco[index];
             document.getElementById('editIndex').value = index;
