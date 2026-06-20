@@ -508,23 +508,31 @@ margin-top:10px;
             document.getElementById('editIndex').value = index;
             document.getElementById('materiaInput').value = q.materia;
             document.getElementById('enunciadoInput').value = q.enunciado;
-            document.getElementById('op1').value = q.opcoes[0];
-            document.getElementById('op2').value = q.opcoes[1];
-            document.getElementById('op3').value = q.opcoes[2];
-            document.getElementById('op4').value = q.opcoes[3];
-            document.getElementById('op5').value = q.opcoes[4];
+            document.getElementById('op1').value = q.opcoes[0] || "";
+document.getElementById('op2').value = q.opcoes[1] || "";
+document.getElementById('op3').value = q.opcoes[2] || "";
+document.getElementById('op4').value = q.opcoes[3] || "";
+document.getElementById('op5').value = q.opcoes[4] || "";
             document.getElementById('corretaSelect').value = q.correta;
             document.getElementById('formAdd').classList.remove('hidden');
         }
 
         function salvarQuestao(){
             const index = parseInt(document.getElementById('editIndex').value);
-            const nova = { 
-                materia: document.getElementById('materiaInput').value, 
-                enunciado: document.getElementById('enunciadoInput').value, 
-                opcoes: [document.getElementById('op1').value, document.getElementById('op2').value, document.getElementById('op3').value, document.getElementById('op4').value, document.getElementById('op5').value], 
-                correta: document.getElementById('corretaSelect').value 
-            };
+            const nova = {
+    materia: document.getElementById('materiaInput').value,
+    enunciado: document.getElementById('enunciadoInput').value,
+
+    opcoes: [
+        document.getElementById('op1').value,
+        document.getElementById('op2').value,
+        document.getElementById('op3').value,
+        document.getElementById('op4').value,
+        document.getElementById('op5').value
+    ].filter(op => op.trim() !== ""),
+
+    correta: document.getElementById('corretaSelect').value
+};
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
             syncFirebase(banco);
