@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>  
     <script>
+    let materiaParaRenomear = "";
         const firebaseConfig = {
             apiKey: "AIzaSyAaDH9-mAKj8vE-L6AVVuOI84SuNh678u8",
             authDomain: "gabarita-ai-d4ab8.firebaseapp.com",
@@ -40,7 +41,6 @@
         campo.selectionEnd =
         inicio + simbolo.length;
 }
-        
     </script>
     
     <style>
@@ -459,7 +459,7 @@ margin-top:10px;
     if(total === 0){
 
         mensagem =
-            "Comece a praticar! 📚";
+          "Comece a praticar! 📚";
     }
 
     else if(porcentagem < 40){
@@ -519,6 +519,7 @@ document.getElementById('op5').value = q.opcoes[4] || "";
 
         function salvarQuestao(){
             const index = parseInt(document.getElementById('editIndex').value);
+            
             const nova = {
     materia: document.getElementById('materiaInput').value,
     enunciado: document.getElementById('enunciadoInput').value,
@@ -551,19 +552,31 @@ document.getElementById('op5').value = q.opcoes[4] || "";
             const lista = document.getElementById('listaDisciplinas');
             lista.innerHTML = '';
             
-            
-            
-            
             const materias = [...new Set(banco.map(q => q.materia))]
     .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
 materias.forEach(materia => {
-    lista.innerHTML += `
-        <button class="btn"
-        onclick="exibirQuestoesDaMateria('${materia}')">
-            ${materia}
-        </button>
-    `;
+    
+ lista.innerHTML += `
+<div class="card">
+
+    <button class="btn"
+    onclick="exibirQuestoesDaMateria('${materia}')">
+        ${materia}
+    </button>
+
+    <button
+    class="btn-edit"
+    onclick="renomearMateria('${materia}')">
+
+        <i class="fas fa-edit"></i>
+        Renomear
+
+    </button>
+
+</div>
+`;   
+    
 });
         }
 
@@ -650,7 +663,16 @@ materias.forEach(m => {
             const q = questoesParaResponder[indiceAtual];
             container.innerHTML = `<h3>${q.materia} (${indiceAtual + 1}/${questoesParaResponder.length})</h3>
                 <div class="card"><p><strong>${q.enunciado}</strong></p>
-                ${q.opcoes.map((op, i) => `<button class="btn opt-btn" style="background:#334155" onclick="verificar(this, ${i}, ${q.correta})">${op}</button>`).join('')}</div>
+                
+                ${q.opcoes
+.filter(op => op.trim() !== "")
+.map((op, i) =>
+`<button class="btn opt-btn"
+style="background:#334155"
+onclick="verificar(this, ${i}, ${q.correta})">
+${op}
+</button>`
+).join('')}</div>
                 <div id="proxContainer"></div>`;
                 setTimeout(renderizarLatex, 100);
         }
@@ -698,7 +720,86 @@ materias.forEach(m => {
         function fecharGuiaLatex(){
     document.getElementById("latexModal").style.display = "none";
 }
-        
+
+
+        function renomearMateria(nomeAntigo){
+
+    materiaParaRenomear = nomeAntigo;
+
+    document.getElementById(
+        "novoNomeMateria"
+    ).value = nomeAntigo;
+
+    document.getElementById(
+        "modalRenomear"
+    ).style.display = "flex";
+}
+       function fecharModalRenomear(){
+
+    document.getElementById(
+        "modalRenomear"
+    ).style.display = "none";
+}
+
+      function confirmarRenomeacao(){
+
+    const novoNome =
+        document.getElementById(
+            "novoNomeMateria"
+        ).value.trim();
+
+    if(!novoNome) return;
+
+    let banco = JSON.parse(
+        localStorage.getItem(
+            "bancoEstudos"
+        ) || "[]"
+    );
+
+    banco.forEach(q => {
+
+        if(q.materia === materiaParaRenomear){
+
+            q.materia = novoNome;
+        }
+    });
+
+    syncFirebase(banco);
+
+    fecharModalRenomear();
+
+    listarDisciplinasUnicas();
+}
+
+      function confirmarRenomeacao(){
+
+    const novoNome =
+        document.getElementById(
+            "novoNomeMateria"
+        ).value.trim();
+
+    if(!novoNome) return;
+
+    let banco = JSON.parse(
+        localStorage.getItem(
+            "bancoEstudos"
+        ) || "[]"
+    );
+
+    banco.forEach(q => {
+
+        if(q.materia === materiaParaRenomear){
+
+            q.materia = novoNome;
+        }
+    });
+
+    syncFirebase(banco);
+
+    fecharModalRenomear();
+
+    listarDisciplinasUnicas();
+}
     </script>
     <div id="latexModal" class="modal-overlay">
 
@@ -942,5 +1043,36 @@ Fechar
 
 </div>
 </div>
+<div id="modalRenomear" class="modal-overlay">
+    <div class="modal-card">
+        <h3>✏️ Renomear Matéria</h3>
+
+        <input
+            type="text"
+            id="novoNomeMateria"
+            placeholder="Digite o novo nome">
+
+        <div style="margin-top:15px;">
+            <button
+                class="modal-btn"
+                style="background:#ef4444"
+                onclick="fecharModalRenomear()">
+                Cancelar
+            </button>
+
+            <button
+                class="modal-btn"
+                style="background:#22c55e"
+                onclick="confirmarRenomeacao()">
+                Salvar
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+
+
+        
+
+       
