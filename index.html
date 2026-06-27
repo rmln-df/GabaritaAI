@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>  
     <script>
     let materiaParaRenomear = "";
+    let materiaParaApagar = "";
         const firebaseConfig = {
             apiKey: "AIzaSyAaDH9-mAKj8vE-L6AVVuOI84SuNh678u8",
             authDomain: "gabarita-ai-d4ab8.firebaseapp.com",
@@ -68,8 +69,8 @@
         .card{ background: var(--glass); backdrop-filter:blur(10px); border:1px solid var(--glass-border); border-radius:20px; padding:25px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
         h1{ font-size:34px; text-align:center; margin-bottom:20px; }
         .btn{ border:none; width:100%; padding:13px; margin-bottom:12px; border-radius:14px; cursor:pointer; font-weight:600; color:white; background:linear-gradient(135deg,#3b82f6,#8b5cf6); transition:.3s; font-size: 20px; display:flex; align-items:center; gap:10px; justify-content:center; }
-        .btn-edit{  display:none !important/*'display:none'foi pra ocultar o botão editar*/;background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
-        .btn-del{ display:none !important /*'display:none'foi pra ocultar o botão apagar*/ ;background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
+        .btn-edit{ display:none !important;/*foi pra ocultar o botão editar*/background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
+        .btn-del{display:none !important;  /*foi pra ocultar o botão apagar*/background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
         .modal-overlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:1000; }
         .modal-card{ background:#1e293b; border:1px solid #60a5fa; padding:30px; border-radius:20px; width:400px; text-align:center; color:white; }
         .modal-btn{ padding:10px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:bold; margin:5px; }
@@ -389,12 +390,23 @@ margin-top:10px;
             setTimeout(() => { document.getElementById("splashScreen").classList.add("fade-out"); }, 3000);
         });
 
-        function syncFirebase(banco) { 
-            // Converte para array limpo para evitar conflitos de índices do Firebase
-            const bancoLimpo = Object.values(banco);
-            db.ref('bancoEstudos').set(bancoLimpo);
-            console.log("Enviando para Firebase...");
-        }
+        function syncFirebase(banco) {
+    const bancoLimpo = Object.values(banco);
+
+    db.ref('bancoEstudos').set(bancoLimpo)
+        .then(() => {
+            localStorage.setItem(
+                "bancoEstudos",
+                JSON.stringify(bancoLimpo)
+            );
+            listarDisciplinasUnicas();
+            console.log("Firebase atualizado.");
+        })
+        .catch((erro) => {
+            console.error(erro);
+            alert("Erro ao atualizar o Firebase.");
+        });
+}
         
         function atualizarContadores(){
 
@@ -573,6 +585,14 @@ materias.forEach(materia => {
         Renomear
 
     </button>
+    <button
+class="btn-del"
+onclick="apagarMateria('${materia}')">
+
+    <i class="fas fa-trash"></i>
+    Apagar
+
+</button>
 
 </div>
 `;   
@@ -604,8 +624,7 @@ materias.forEach(materia => {
         function confirmarAcao(titulo, msg, acao) {
             document.getElementById('modalTitle').innerText = titulo;
             document.getElementById('modalMsg').innerText = msg;
-            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444;" onclick="fecharModal()">Não</button>
-                                                              <button class="modal-btn" style="background:#22c55e;" onclick="${acao}; fecharModal();">Sim</button>`;
+            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" style="background:#ef4444;" onclick="fecharModal()">Não</button>              <button class="modal-btn" style="background:#22c55e;" onclick="${acao}; fecharModal();">Sim</button>`;
             document.getElementById('customModal').style.display = 'flex';
         }
         function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
@@ -676,8 +695,6 @@ ${op}
                 <div id="proxContainer"></div>`;
                 setTimeout(renderizarLatex, 100);
         }
-        
-        
 
         function verificar(btn, escolhida, correta){
             const botoes = document.querySelectorAll('.opt-btn');
@@ -720,7 +737,6 @@ ${op}
         function fecharGuiaLatex(){
     document.getElementById("latexModal").style.display = "none";
 }
-
 
         function renomearMateria(nomeAntigo){
 
@@ -768,6 +784,27 @@ ${op}
 
     fecharModalRenomear();
 
+    listarDisciplinasUnicas();
+}
+  
+      function apagarMateria(nomeMateria) {
+    confirmarAcao(
+        "Apagar Matéria",
+        "Deseja apagar toda a matéria '" + nomeMateria + "'?",
+        "executarApagarMateria('" + nomeMateria + "')"
+    );
+}
+
+function executarApagarMateria(nomeMateria) {
+    let banco = JSON.parse(localStorage.getItem("bancoEstudos") || "[]");
+    
+    // Remove todas as questões que pertencem a essa matéria
+    banco = banco.filter(q => q.materia !== nomeMateria);
+
+    // Salva a nova lista no Firebase e atualiza o localStorage
+    syncFirebase(banco);
+    
+    // Recarrega a lista na tela
     listarDisciplinasUnicas();
 }
 
@@ -1071,8 +1108,3 @@ Fechar
 </div>
 </body>
 </html>
-
-
-        
-
-       
