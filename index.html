@@ -69,8 +69,42 @@
         .card{ background: var(--glass); backdrop-filter:blur(10px); border:1px solid var(--glass-border); border-radius:20px; padding:25px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
         h1{ font-size:34px; text-align:center; margin-bottom:20px; }
         .btn{ border:none; width:100%; padding:13px; margin-bottom:12px; border-radius:14px; cursor:pointer; font-weight:600; color:white; background:linear-gradient(135deg,#3b82f6,#8b5cf6); transition:.3s; font-size: 20px; display:flex; align-items:center; gap:10px; justify-content:center; }
-        .btn-edit{ display:none !important;/*foi pra ocultar o botão editar*/background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
-        .btn-del{display:none !important;  /*foi pra ocultar o botão apagar*/background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
+        .btn-edit{ display:none !important;*/ /*foi pra ocultar o botão editar*/background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
+        .btn-del{display:none !important;*/  /*foi pra ocultar o botão apagar*/background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
+        .btn-secundario{
+    border:none;
+    width:100%;
+    padding:13px;
+    margin-bottom:12px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:600;
+    color:white;
+    font-size:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    
+    background:linear-gradient(135deg,#15803d,#22c55e);
+    
+  /*  background:linear-gradient(135deg,#dc2626,#9333ea);
+    
+    background:linear-gradient(135deg,#f59e0b,#ef4444);
+    
+    background:linear-gradient(135deg,#eab308,#f97316);
+    
+    background:linear-gradient(135deg,#22c55e,#8b5cf6);
+    
+    background:linear-gradient(135deg,#2563eb,#22c55e);
+
+    background:linear-gradient(135deg,#0f766e,#14b8a6);*/
+    transition:.3s;
+}
+
+        .btn-secundario:hover{
+    transform:scale(1.02);
+}
         .modal-overlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:1000; }
         .modal-card{ background:#1e293b; border:1px solid #60a5fa; padding:30px; border-radius:20px; width:400px; text-align:center; color:white; }
         .modal-btn{ padding:10px 20px; border-radius:10px; border:none; cursor:pointer; font-weight:bold; margin:5px; }
@@ -364,7 +398,7 @@ margin-top:10px;
             <h2>Praticar</h2>
             <div id="menuMaterias"></div>
             <div id="areaQuestao" class="hidden">
-                <button class="btn" onclick="openScreen('questoes')"><i class="fas fa-arrow-left"></i> Voltar ao Menu</button>
+                <button class="btn-secundario" onclick="openScreen('questoes')"><i class="fas fa-arrow-left"></i> Voltar ao Menu</button>
                 <div id="conteudoQuestao"></div>
             </div>
         </div>
@@ -572,7 +606,7 @@ materias.forEach(materia => {
  lista.innerHTML += `
 <div class="card">
 
-    <button class="btn"
+    <button class="btn-secundario"
     onclick="exibirQuestoesDaMateria('${materia}')">
         ${materia}
     </button>
@@ -603,7 +637,7 @@ onclick="apagarMateria('${materia}')">
            function exibirQuestoesDaMateria(materia) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const lista = document.getElementById('listaDisciplinas');
-            lista.innerHTML = `<button class="btn" onclick="listarDisciplinasUnicas()"><i class="fas fa-arrow-left"></i> Voltar</button><h3>${materia}</h3>`;
+            lista.innerHTML = `<button class="btn-secundario" onclick="listarDisciplinasUnicas()"><i class="fas fa-arrow-left"></i> Voltar</button><h3>${materia}</h3>`;
             banco.forEach((q, idx) => {
                 if(q.materia === materia) {
                     lista.innerHTML += `<div class="card"><p><strong>${q.enunciado}</strong></p>
@@ -656,7 +690,7 @@ onclick="apagarMateria('${materia}')">
 
 materias.forEach(m => {
     menu.innerHTML += `
-        <button class="btn"
+        <button class="btn-secundario"
         onclick="iniciarSessao('${m}')">
             ${m}
         </button>
@@ -676,7 +710,7 @@ materias.forEach(m => {
             const container = document.getElementById('conteudoQuestao');
             document.getElementById('areaQuestao').classList.remove('hidden');
             if (indiceAtual >= questoesParaResponder.length) {
-                container.innerHTML = `<h3>Sessão Finalizada!</h3><button class="btn" onclick="openScreen('questoes')">Voltar ao menu</button>`;
+                container.innerHTML = `<h3>Sessão Finalizada!</h3><button class="btn-secundario" onclick="openScreen('questoes')">Voltar ao menu</button>`;
                 return;
             }
             const q = questoesParaResponder[indiceAtual];
@@ -795,7 +829,7 @@ ${op}
     );
 }
 
-function executarApagarMateria(nomeMateria) {
+       function executarApagarMateria(nomeMateria) {
     let banco = JSON.parse(localStorage.getItem("bancoEstudos") || "[]");
     
     // Remove todas as questões que pertencem a essa matéria
@@ -1108,3 +1142,5 @@ Fechar
 </div>
 </body>
 </html>
+
+    
