@@ -69,8 +69,8 @@
         .card{ background: var(--glass); backdrop-filter:blur(10px); border:1px solid var(--glass-border); border-radius:20px; padding:25px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
         h1{ font-size:34px; text-align:center; margin-bottom:20px; }
         .btn{ border:none; width:100%; padding:13px; margin-bottom:12px; border-radius:14px; cursor:pointer; font-weight:600; color:white; background:linear-gradient(135deg,#3b82f6,#8b5cf6); transition:.3s; font-size: 20px; display:flex; align-items:center; gap:10px; justify-content:center; }
-        .btn-edit{ display:none !important;*/ /*foi pra ocultar o botão editar*/background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
-        .btn-del{display:none !important;*/  /*foi pra ocultar o botão apagar*/background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
+        .btn-edit{/* display:none !important;*/ /*foi pra ocultar o botão editar*/background:#d97706; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; margin-right:8px; font-size:16px; }
+        .btn-del{/* display:none !important;*/  /*foi pra ocultar o botão apagar*/background:#dc2626; border:none; color:white; padding:10px 14px; border-radius:12px; cursor:pointer; font-size:16px; }
         .btn-secundario{
     border:none;
     width:100%;
@@ -896,18 +896,8 @@ margin-top:15px;
 </tr>
 
 <tr>
-<td><code>$x^2$</code></td>
-<td>$x^2$</td>
-</tr>
-
-<tr>
-<td><code>$x^3$</code></td>
-<td>$x^3$</td>
-</tr>
-
-<tr>
-<td><code>$x_1$</code></td>
-<td>$x_1$</td>
+<td><code>$x^n$</code></td>
+<td>$x^n$</td>
 </tr>
 
 <tr>
@@ -916,8 +906,8 @@ margin-top:15px;
 </tr>
 
 <tr>
-<td><code>$\frac{1}{2}$</code></td>
-<td>$\frac{1}{2}$</td>
+<td><code>$\frac{a}{b}$</code></td>
+<td>$\frac{a}{b}$</td>
 </tr>
 
 <tr>
@@ -926,13 +916,8 @@ margin-top:15px;
 </tr>
 
 <tr>
-<td><code>$\sqrt{25}$</code></td>
-<td>$\sqrt{25}$</td>
-</tr>
-
-<tr>
-<td><code>$\sqrt[3]{27}$</code></td>
-<td>$\sqrt[3]{27}$</td>
+<td><code>$\sqrt{x}$</code></td>
+<td>$\sqrt{x}$</td>
 </tr>
 
 <tr>
@@ -993,6 +978,81 @@ margin-top:15px;
 <tr>
 <td><code>$a \approx b$</code></td>
 <td>$a \approx b$</td>
+</tr>
+
+<tr>
+<td><code>$\models$</code></td>
+<td>$\models$</td>
+</tr>
+
+<tr>
+<td><code>$\equiv$</code></td>
+<td>$\equiv$</td>
+</tr>
+
+<tr>
+<td><code>$\vdash$</code></td>
+<td>$\vdash$</td>
+</tr>
+
+<tr>
+<td><code>$p \rightarrow q$</code></td>
+<td>$p \rightarrow q$</td>
+</tr>
+
+<tr>
+<td><code>$p \leftrightarrow q$</code></td>
+<td>$p \leftrightarrow q$</td>
+</tr>
+
+<tr>
+<td><code>$p \land q$</code></td>
+<td>$p \land q$</td>
+</tr>
+
+<tr>
+<td><code>$p \lor q$</code></td>
+<td>$p \lor q$</td>
+</tr>
+
+<tr>
+<td><code>$p \veebar q$</code></td>
+<td>$p \veebar q$</td>
+</tr>
+
+<tr>
+<td><code>$p \oplus q$</code></td>
+<td>$p \oplus q$</td>
+</tr>
+
+<tr>
+<td><code>$\forall$</code></td>
+<td>$\forall$</td>
+</tr>
+
+<tr>
+    <td><code>$\exists$</code></td>
+    <td>$\exists$</td>
+</tr>
+
+<tr>
+<td><code>$\subseteq$</code></td>
+<td>$\subseteq$</td>
+</tr>
+
+<tr>
+<td><code>$\top$</code></td>
+<td>$\top$</td>
+</tr>
+
+<tr>
+<td><code>$\bot$</code></td>
+<td>$\bot$</td>
+</tr>
+
+<tr>
+<td><code>$ \neg q$</code></td>
+<td>$ \neg q$</td>
 </tr>
 
 <tr>
@@ -1080,30 +1140,31 @@ margin-top:15px;
 <td>$\mathbb{I}$</td>
 </tr>
 
-    <tr>
-    <td><code>$\begin{bmatrix} a & b \\ c & d \end{bmatrix}$</code></td>
-    <td class="latex-render">
+<tr>
+<td><code>$\begin{bmatrix} a & b \\ c & d \end{bmatrix}$</code></td>
+<td class="latex-render">
         $\begin{bmatrix} a & b \\ c & d \end{bmatrix}$</td>
 </tr>
 
 <tr>
-    <td><code>$\begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}$</code></td>
-    <td class="latex-render">
+<td><code>$\begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}$</code></td>
+<td class="latex-render">
         $\begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}$</td>
 </tr>
-    <tr>
-    <td><code>$\det(A)$</code></td>
-    <td class="latex-render">$\det(A)$</td>
+
+<tr>
+<td><code>$\det(A)$</code></td>
+<td class="latex-render">$\det(A)$</td>
 </tr>
 
 <tr>
-    <td><code>$A^{-1}$</code></td>
-    <td class="latex-render">$A^{-1}$</td>
+<td><code>$A^{-1}$</code></td>
+<td class="latex-render">$A^{-1}$</td>
 </tr>
 
 <tr>
-    <td><code>$A^T$</code></td>
-    <td class="latex-render">$A^T$</td>
+<td><code>$A^T$</code></td>
+<td class="latex-render">$A^T$</td>
 </tr>
 </table>
 
@@ -1142,5 +1203,3 @@ Fechar
 </div>
 </body>
 </html>
-
-    
