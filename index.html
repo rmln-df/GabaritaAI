@@ -86,18 +86,6 @@
     justify-content:center;
     gap:10px;
          
-  /*  background:linear-gradient(135deg,#2563eb,#22c55e);
-    
-    background:linear-gradient(135deg,#15803d,#22c55e);
-    
-    background:linear-gradient(135deg,#dc2626,#9333ea);
-    
-    background:linear-gradient(135deg,#f59e0b,#ef4444);
-    
-    background:linear-gradient(135deg,#eab308,#f97316);
-    
-    background:linear-gradient(135deg,#22c55e,#8b5cf6); */
-
     background:linear-gradient(135deg,#0f766e,#14b8a6);
     transition:.3s;
 }
@@ -173,7 +161,7 @@
     cursor:pointer;
     flex-shrink:0;
 }    
-} 
+
        #latexModal table{
     width:100%;
     border-collapse:collapse;
@@ -388,6 +376,12 @@ margin-top:10px;
                     <option value="2">Correta: C</option><option value="3">Correta: D</option>
                     <option value="4">Correta: E</option>
                 </select>
+                
+                <textarea
+    id="explicacaoInput"
+    placeholder="Justificativa da resposta (será exibida quando o aluno errar)">
+</textarea>
+              
                 <button class="btn" onclick="salvarQuestao()"><i class="fas fa-save"></i> Salvar</button>
             </div>
             <button class="fab" onclick="resetForm()">+</button>
@@ -442,7 +436,7 @@ margin-top:10px;
         });
 }
         
-        function atualizarContadores(){
+function atualizarContadores(){
 
     const banco = JSON.parse(
         localStorage.getItem(
@@ -546,27 +540,30 @@ margin-top:10px;
             document.getElementById('op3').value = ""; document.getElementById('op4').value = "";
             document.getElementById('op5').value = "";
             document.getElementById('formAdd').classList.remove('hidden');
+            document.getElementById("explicacaoInput").value = "";
         }
 
         function editarQuestao(index) {
             const banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             const q = banco[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('materiaInput').value = q.materia;
-            document.getElementById('enunciadoInput').value = q.enunciado;
-            document.getElementById('op1').value = q.opcoes[0] || "";
+document.getElementById('editIndex').value = index;
+document.getElementById('materiaInput').value = q.materia;
+document.getElementById('enunciadoInput').value = q.enunciado;
+document.getElementById('op1').value = q.opcoes[0] || "";
 document.getElementById('op2').value = q.opcoes[1] || "";
 document.getElementById('op3').value = q.opcoes[2] || "";
 document.getElementById('op4').value = q.opcoes[3] || "";
 document.getElementById('op5').value = q.opcoes[4] || "";
-            document.getElementById('corretaSelect').value = q.correta;
-            document.getElementById('formAdd').classList.remove('hidden');
+document.getElementById('corretaSelect').value = q.correta;
+document.getElementById("explicacaoInput").value =
+    q.explicacao || "";
+document.getElementById('formAdd').classList.remove('hidden');
         }
 
         function salvarQuestao(){
             const index = parseInt(document.getElementById('editIndex').value);
             
-            const nova = {
+           const nova = {
     materia: document.getElementById('materiaInput').value,
     enunciado: document.getElementById('enunciadoInput').value,
 
@@ -578,12 +575,15 @@ document.getElementById('op5').value = q.opcoes[4] || "";
         document.getElementById('op5').value
     ].filter(op => op.trim() !== ""),
 
-    correta: document.getElementById('corretaSelect').value
+    correta: document.getElementById('corretaSelect').value,
+    explicacao: document.getElementById('explicacaoInput').value
+    
 };
             let banco = JSON.parse(localStorage.getItem('bancoEstudos') || '[]');
             if(index > -1) banco[index] = nova; else banco.push(nova);
             syncFirebase(banco);
             document.getElementById('formAdd').classList.add('hidden');
+            
         }
 
         function openScreen(id){
@@ -735,9 +735,48 @@ ${op}
             botoes.forEach(b => b.style.pointerEvents = 'none');
             if(escolhida == correta) { localStorage.setItem('acertos', parseInt(localStorage.getItem('acertos') || 0) + 1); btn.style.background = "#22c55e"; }
             else { localStorage.setItem('erros', parseInt(localStorage.getItem('erros') || 0) + 1); btn.style.background = "#ef4444"; botoes[correta].style.background = "#22c55e"; }
-            document.getElementById('proxContainer').innerHTML = `<button class="btn" style="background:#6366f1" onclick="indiceAtual++; renderizarQuestao()">Próxima Questão</button>`;
-            atualizarContadores();
-        }
+            const q = questoesParaResponder[indiceAtual];
+            
+   let html = `
+<button
+class="btn"
+style="background:#6366f1"
+onclick="indiceAtual++; renderizarQuestao()">
+
+Próxima Questão
+
+</button>
+`;
+
+if(escolhida != correta){
+
+html += `
+
+<div class="card"
+style="
+margin-top:20px;
+background:#3f2a00;
+border-left:6px solid orange;
+">
+
+<h3>📚 Justificativa</h3>
+
+<p>
+
+${q.explicacao || "Nenhuma justificativa cadastrada."}
+
+</p>
+
+</div>
+
+`;
+
+}
+
+document.getElementById("proxContainer").innerHTML = html;
+
+atualizarContadores();
+}
        function renderizarLatex() {
 
     renderMathInElement(document.body, {
@@ -842,7 +881,7 @@ ${op}
     listarDisciplinasUnicas();
 }
 
-      function confirmarRenomeacao(){
+function confirmarRenomeacao(){
 
     const novoNome =
         document.getElementById(
@@ -1208,3 +1247,4 @@ Fechar
 </div>
 </body>
 </html>
+ 
